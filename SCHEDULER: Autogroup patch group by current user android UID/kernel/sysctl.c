@@ -1,0 +1,7 @@
+     .data    = &sysctl_sched_autogroup_enabled,
+      .maxlen    = sizeof(unsigned int),
+      .mode    = 0644,
+-    .proc_handler  = proc_dointvec_minmax,
++  .proc_handler  = proc_dointvec,
+      .extra1    = &zero,
+      .extra2    = &one,

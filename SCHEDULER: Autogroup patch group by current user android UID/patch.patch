@@ -1,0 +1,47 @@
+From 1bb8cdc5b43b2fdeefbfd34e4275e24a2f8085a5 Mon Sep 17 00:00:00 2001
+From: Lance Poore <linuxsociety@gmail.com>
+Date: Sun, 12 Aug 2012 15:25:06 -0500
+Subject: [PATCH] SCHEDULER: Autogroup patch group by current user android UID
+ instead of task ID
+
+---
+ kernel/sys.c    | 3 ++-
+ kernel/sysctl.c | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 2e64b91..2de1831 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -645,6 +645,7 @@ static int set_user(struct cred *new)
+ 
+         free_uid(new->user);
+         new->user = new_user;
++        sched_autogroup_create_attach(current);
+         return 0;
+ }
+ 
+@@ -1154,7 +1155,7 @@ void do_sys_times(struct tms *tms)
+         write_unlock_irq(&tasklist_lock);
+         if (err > 0) {
+                 proc_sid_connector(group_leader);
+-                sched_autogroup_create_attach(group_leader);
++                
+         }
+         return err;
+ }
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 853c29b..3f65f8a 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -375,7 +375,7 @@ static int sysrq_sysctl_handler(ctl_table *table, int write,
+                 .data                = &sysctl_sched_autogroup_enabled,
+                 .maxlen                = sizeof(unsigned int),
+                 .mode                = 0644,
+-                .proc_handler        = proc_dointvec_minmax,
++                .proc_handler        = proc_dointvec,
+                 .extra1                = &zero,
+                 .extra2                = &one,
+         },
+-- 
+1.8.1.6
